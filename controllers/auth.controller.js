@@ -71,8 +71,17 @@ else{
 export const SaveData= async (req,res)=>{
     try {
         const {email,html,css,js,title,desc} = req.body;
-        const theUser = await User.findOne({email: email});
-        theUser.mycode.push({title,desc, html, css,js });   
+        const theUser = await User.findOne({email: email});  
+        theUser.mycode.push({
+            code: {
+                title,
+                desc,
+                html,
+                css,
+                js
+            }
+        });
+
         await theUser.save();
         res.status(200).json({
             DataSaved:true
@@ -87,6 +96,40 @@ export const GetData = async (req, res) => {
       const { email } = req.body;
       const checkByEmail = await User.findOne({email: email});
       res.status(200).json(checkByEmail);
+    } catch (error) {
+      return res.json({
+        isFetched: false,
+      });
+    }
+  };
+
+  export const GetCard = async (req, res) => {
+    try {
+      const { _id } = req.body;
+      const user = await User.findOne({ 'mycode._id': _id });
+      if (!user) {
+        return res.status(404).json({ message: 'Code not found' });
+    }
+
+    const codeObject = user.mycode.id(_id);
+
+    if (!codeObject) {
+        return res.status(404).json({ message: 'Code not found' });
+    }
+
+
+    return res.status(200).json({ code: codeObject });
+    } catch (error) {
+      return res.json({
+        isFetched: false,
+      });
+    }
+  };
+
+  export const GetAllData = async (req, res) => {
+    try {
+        const Users = await User.find();
+      res.status(200).json(Users);
     } catch (error) {
       return res.json({
         isFetched: false,
