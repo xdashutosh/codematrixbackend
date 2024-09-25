@@ -1,14 +1,6 @@
 import mongoose from "mongoose";
 
-const dataSchema = new mongoose.Schema({
-    code: {
-            title:String,
-            desc:String,
-            html:String,
-            css:String,
-            js:String,    
-    }
-  }, { _id: true });
+
   
 
 const userSchema = new mongoose.Schema({
@@ -27,9 +19,7 @@ const userSchema = new mongoose.Schema({
         required:true,
        
     },
-    mycode:[
-        dataSchema
-    ]
+   
 
 },
 {timestamps:true}

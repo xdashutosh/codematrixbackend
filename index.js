@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import dbconnection from "./db/dbconnection.js";
 import AuthRoute from "./routes/auth.route.js";
 import cors from "cors";
+import bodyParser from "body-parser";
 dotenv.config();
 const app = express();
 const corsOptions = {
@@ -12,6 +13,7 @@ const corsOptions = {
   };
   
   app.use(cors(corsOptions));
+  app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.json());
 
 app.listen(5000,()=>{

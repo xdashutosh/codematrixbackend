@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 import bcryptjs from 'bcryptjs';
 import dotenv from 'dotenv';
+import { News } from "../models/news.model.js";
 
 dotenv.config();
 
@@ -13,7 +14,8 @@ export const Signup= async (req,res)=>{
         const isEmail = await User.findOne({email: email});
       if(isEmail)
         {return res.json({
-            status:false
+            status:false,
+            message:'user already registerd!'
         })}
 
 
@@ -22,6 +24,7 @@ export const Signup= async (req,res)=>{
         await newUser.save();
         res.status(200).json({
             userCreated:true
+            
         });
     } catch (error) {
         res.status(500).json(error.message);
@@ -45,6 +48,7 @@ if (password == checkByEmail.password) {
 else{
     return res.json({
         isAuthenticated:false,
+        message:'wrong credentials!',
          userExisted:true                
     })
 }
@@ -53,6 +57,7 @@ else{
             
            return res.json({
                 isAuthenticated:false,
+                message:'User not registered!',
                  userExisted:false                
             })
         }
@@ -70,21 +75,13 @@ else{
 
 export const SaveData= async (req,res)=>{
     try {
-        const {email,html,css,js,title,desc} = req.body;
-        const theUser = await User.findOne({email: email});  
-        theUser.mycode.push({
-            code: {
-                title,
-                desc,
-                html,
-                css,
-                js
-            }
-        });
+        const {email,heading,points,details,image,newsDate,pending} = req.body;
+        const newNews = new News({email,heading,points,details,image,newsDate,pending});
 
-        await theUser.save();
+        await newNews.save();
         res.status(200).json({
-            DataSaved:true
+            DataSaved:true,
+            newNews
         });
     } catch (error) {
         res.status(500).json(error.message);
@@ -92,6 +89,18 @@ export const SaveData= async (req,res)=>{
 };
 
 export const GetData = async (req, res) => {
+    try {
+      const { email } = req.body;
+      const checkByEmail = await News.find({email: email});
+      res.status(200).json(checkByEmail);
+    } catch (error) {
+      return res.json({
+        isFetched: false,
+      });
+    }
+  };
+
+  export const Userdata = async (req, res) => {
     try {
       const { email } = req.body;
       const checkByEmail = await User.findOne({email: email});
@@ -128,11 +137,29 @@ export const GetData = async (req, res) => {
 
   export const GetAllData = async (req, res) => {
     try {
-        const Users = await User.find();
-      res.status(200).json(Users);
+        const AllNews = await News.find();
+    res.status(200).json(AllNews);
     } catch (error) {
       return res.json({
         isFetched: false,
       });
     }
   };
+
+  export const GetApprove = async (req, res) => {
+    try {
+      const {email,newsDate}= req.body;
+        const AllNews = await News.findOne({email:email,newsDate:newsDate});
+        console.log(AllNews.pending)
+    
+          AllNews.pending=false;
+         await AllNews.save();
+          res.status(200).json({approved:true});
+    } catch (error) {
+      return res.json({
+        isFetched: false,
+      });
+    }
+  };
+
+
